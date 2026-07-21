@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { NativeBannerAd, SocialBarAd } from "./ads";
+import { ConsentProvider, ConsentSettingsButton } from "./consent";
 
 type MediaItem = {
   url: string;
@@ -168,7 +169,7 @@ export default function Home() {
   }
 
   return (
-    <main>
+    <ConsentProvider><main>
       <SocialBarAd />
       <header className="site-header">
         <a className="brand" href="#top" aria-label="ReelSave home">
@@ -283,9 +284,9 @@ export default function Home() {
       <footer>
         <a className="brand footer-brand" href="#top"><span className="brand-mark"><DownloadIcon /></span>Reel<span>Save</span></a>
         <p>Download videos from public Instagram Reels and posts for free in the highest available quality. ReelSave is not affiliated with Instagram or Meta.</p>
-        <div><a href="#faq">Terms</a><a href="#faq">Privacy</a></div>
+        <div><a href="/terms/">Terms</a><a href="/privacy/">Privacy</a><ConsentSettingsButton /></div>
         <small>© {new Date().getFullYear()} ReelSave</small>
       </footer>
-    </main>
+    </main></ConsentProvider>
   );
 }

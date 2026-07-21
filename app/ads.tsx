@@ -1,6 +1,7 @@
 "use client";
 
 import Script from "next/script";
+import { useConsent } from "./consent";
 
 const socialBarSrc = normalizeScriptUrl(
   process.env.NEXT_PUBLIC_ADSTERRA_SOCIAL_BAR_SRC,
@@ -30,7 +31,8 @@ function normalizeContainerId(value: string | undefined) {
 }
 
 export function SocialBarAd() {
-  if (!socialBarSrc) return null;
+  const { preferences } = useConsent();
+  if (!socialBarSrc || !preferences?.advertising) return null;
 
   return (
     <Script
@@ -43,7 +45,8 @@ export function SocialBarAd() {
 }
 
 export function NativeBannerAd() {
-  if (!nativeScriptSrc || !nativeContainerId) return null;
+  const { preferences } = useConsent();
+  if (!nativeScriptSrc || !nativeContainerId || !preferences?.advertising) return null;
 
   return (
     <aside className="native-ad" aria-label="Advertisement">
