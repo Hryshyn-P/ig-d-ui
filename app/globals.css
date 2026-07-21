@@ -128,7 +128,7 @@ footer small { margin-top: 30px; color: #444944; }
 [data-theme="light"] .orb-two { background: rgba(232,111,24,.11); }
 [data-theme="light"] h1 em { background-image: linear-gradient(90deg,#172019 5%,var(--green) 48%,var(--orange)); }
 [data-theme="light"] .mode-tabs button { color: #59645b; border-color: rgba(23,32,25,.16); background: rgba(255,255,255,.78); }
-[data-theme="light"] .mode-tabs button.active { color: #fff; }
+[data-theme="light"] .mode-tabs button.active { color: #fff; border-color: var(--green); background: var(--green); }
 [data-theme="light"] .download-card { border-color: rgba(23,32,25,.14); background: rgba(255,255,255,.9); box-shadow: 0 24px 70px rgba(34,60,38,.14),0 0 60px rgba(88,191,32,.06); }
 [data-theme="light"] .download-card label { color: #3f4941; }
 [data-theme="light"] .input-row input { background: #f8faf7; }
