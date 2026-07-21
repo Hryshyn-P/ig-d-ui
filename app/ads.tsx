@@ -46,9 +46,6 @@ export function SocialBarAd() {
 }
 
 export function GoogleAdsenseScript() {
-  const { preferences } = useConsent();
-  if (!preferences?.advertising) return null;
-
   return (
     <Script
       id="google-adsense"
