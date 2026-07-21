@@ -25,7 +25,6 @@ jobs:
           cache: npm
 
       - name: Configure GitHub Pages
-        id: pages
         uses: actions/configure-pages@v6
 
       - name: Install dependencies
@@ -34,7 +33,7 @@ jobs:
       - name: Build static site
         env:
           GITHUB_PAGES: "true"
-          NEXT_PUBLIC_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          NEXT_PUBLIC_BASE_PATH: ""
           NEXT_PUBLIC_DOWNLOADER_API_URL: ${{ secrets.DOWNLOADER_API_URL }}
         run: npm run build
 
