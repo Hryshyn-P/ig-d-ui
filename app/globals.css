@@ -72,6 +72,11 @@ h1 em { color: transparent; background: linear-gradient(90deg, #fff 5%, var(--gr
 .input-row button:hover { transform: translateY(-1px); box-shadow: 0 12px 38px rgba(156,255,87,.25); }
 .input-row button:disabled { opacity: .55; cursor: wait; transform: none; }
 .form-note { margin: 11px 2px 0; color: #697069; font-size: 11px; }
+.backend-state { margin-left: 9px; white-space: nowrap; }
+.input-detected { margin-left: 9px; color: var(--green); white-space: nowrap; }
+.backend-state.checking { color: var(--orange); }
+.backend-state.ready { color: #78c849; }
+.backend-state.unavailable { color: var(--muted); }
 .status { margin-top: 14px; padding: 11px 13px; border: 1px solid; border-radius: 9px; font-size: 13px; }
 .status.error { color: #ffad72; border-color: rgba(255,138,50,.25); background: rgba(255,138,50,.07); }
 .status.loading, .status.success { color: var(--green); border-color: rgba(156,255,87,.22); background: rgba(156,255,87,.06); }
@@ -164,6 +169,7 @@ footer small { margin-top: 30px; color: #444944; }
   .mode-tabs { margin-top: 18px; gap: 7px; }
   .mode-tabs button { min-height: 38px; padding: 0 12px; font-size: 12px; }
   .download-card { padding: 16px; margin-top: 30px; border-radius: 15px; }
+  .backend-state, .input-detected { display: block; margin: 5px 0 0; white-space: normal; }
   .input-row { flex-direction: column; }
   .input-row input { height: 60px; min-height: 60px; }
   .input-row .paste-button { top: 6px; right: 6px; height: 48px; }

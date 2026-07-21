@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { NativeBannerAd, SocialBarAd } from "./ads";
 import { ConsentProvider, ConsentSettingsButton } from "./consent";
 import { ThemeToggle } from "./theme-toggle";
@@ -13,6 +13,7 @@ type MediaItem = {
 };
 
 type DownloadMode = "all" | "reels" | "video" | "photo" | "dp" | "story" | "audio";
+type InstagramInputKind = "username" | "profile" | "story" | "reel" | "post" | "tv";
 
 const downloadModes: Array<{
   id: DownloadMode;
@@ -38,22 +39,57 @@ type DownloadResult = {
 };
 
 const API_URL = process.env.NEXT_PUBLIC_DOWNLOADER_API_URL?.trim();
-
-function isInstagramInput(value: string, mode: DownloadMode) {
-  if ((mode === "dp" || mode === "story") && /^@?[A-Za-z0-9._]{1,30}$/.test(value)) {
-    return true;
-  }
-
+const HEALTH_URL = (() => {
+  if (!API_URL) return null;
   try {
-    const url = new URL(value);
-    if (url.protocol !== "https:" || !["instagram.com", "www.instagram.com"].includes(url.hostname)) return false;
-    if (mode === "dp") return /^\/[A-Za-z0-9._]+\/?$/.test(url.pathname);
-    if (mode === "story") return /^\/(stories\/|[A-Za-z0-9._]+\/?$)/.test(url.pathname);
-    return /^\/(reel|reels|p|tv)\//.test(url.pathname);
+    return new URL("/health", API_URL).href;
   } catch {
-    return false;
+    return null;
+  }
+})();
+
+function detectInstagramInputKind(value: string, allowUsername = true): InstagramInputKind | null {
+  const input = value.trim();
+  if (allowUsername && /^@?[A-Za-z0-9._]{1,30}$/.test(input)) return "username";
+  try {
+    const parsed = new URL(input);
+    if (parsed.protocol !== "https:" || !["instagram.com", "www.instagram.com"].includes(parsed.hostname)) return null;
+    const [first] = parsed.pathname.split("/").filter(Boolean);
+    if (!first) return null;
+    if (first === "stories") return "story";
+    if (first === "reel" || first === "reels") return "reel";
+    if (first === "p") return "post";
+    if (first === "tv") return "tv";
+    return /^[A-Za-z0-9._]{1,30}$/.test(first) ? "profile" : null;
+  } catch {
+    return null;
   }
 }
+
+function resolveDownloadMode(value: string, requestedMode: DownloadMode, allowUsername = true) {
+  const kind = detectInstagramInputKind(value, allowUsername);
+  if (!kind) return null;
+  if (kind === "story") return { kind, mode: "story" as DownloadMode };
+  if (kind === "username" || kind === "profile") {
+    return { kind, mode: requestedMode === "story" ? "story" : "dp" as DownloadMode };
+  }
+  if (kind === "reel") {
+    const compatible = (["reels", "video", "audio"] as DownloadMode[]).includes(requestedMode);
+    return { kind, mode: compatible ? requestedMode : "reels" as DownloadMode };
+  }
+  if (kind === "tv") return { kind, mode: requestedMode === "audio" ? "audio" : "video" as DownloadMode };
+  const compatible = (["all", "video", "photo", "audio"] as DownloadMode[]).includes(requestedMode);
+  return { kind, mode: compatible ? requestedMode : "all" as DownloadMode };
+}
+
+const inputKindLabels: Record<InstagramInputKind, string> = {
+  username: "Instagram profile",
+  profile: "Instagram profile",
+  story: "Instagram Story",
+  reel: "Instagram Reel",
+  post: "Instagram post",
+  tv: "Instagram video",
+};
 
 function mediaForMode(media: MediaItem[], mode: DownloadMode) {
   if (mode === "photo" || mode === "dp") return media.filter((item) => item.type === "image");
@@ -108,7 +144,26 @@ export default function Home() {
   const [status, setStatus] = useState<"idle" | "loading" | "error" | "success">("idle");
   const [message, setMessage] = useState("");
   const [result, setResult] = useState<DownloadResult | null>(null);
+  const [detectedKind, setDetectedKind] = useState<InstagramInputKind | null>(null);
+  const [backendStatus, setBackendStatus] = useState<"checking" | "ready" | "unavailable">(
+    HEALTH_URL ? "checking" : "unavailable",
+  );
   const activeMode = downloadModes.find((item) => item.id === mode) ?? downloadModes[0];
+
+  useEffect(() => {
+    if (!HEALTH_URL) return;
+
+    const controller = new AbortController();
+    fetch(HEALTH_URL, { cache: "no-store", signal: controller.signal })
+      .then((response) => setBackendStatus(response.ok ? "ready" : "unavailable"))
+      .catch((error: unknown) => {
+        if (!(error instanceof DOMException && error.name === "AbortError")) {
+          setBackendStatus("unavailable");
+        }
+      });
+
+    return () => controller.abort();
+  }, []);
 
   function selectMode(nextMode: DownloadMode) {
     setMode(nextMode);
@@ -117,10 +172,21 @@ export default function Home() {
     setStatus("idle");
   }
 
+  function applyInput(nextValue: string, allowUsername = false) {
+    const trimmed = nextValue.trim();
+    setUrl(trimmed);
+    const detected = resolveDownloadMode(trimmed, mode, allowUsername);
+    setDetectedKind(detected?.kind ?? null);
+    if (detected && detected.mode !== mode) setMode(detected.mode);
+    setResult(null);
+    setMessage("");
+    setStatus("idle");
+  }
+
   async function pasteFromClipboard() {
     try {
       const text = await navigator.clipboard.readText();
-      if (text.trim()) setUrl(text.trim());
+      if (text.trim()) applyInput(text, true);
     } catch {
       setStatus("error");
       setMessage("Clipboard access was blocked. Paste the link manually.");
@@ -131,11 +197,17 @@ export default function Home() {
     event.preventDefault();
     setResult(null);
 
-    if (!isInstagramInput(url.trim(), mode)) {
+    const detected = resolveDownloadMode(url, mode, true);
+
+    if (!detected) {
       setStatus("error");
-      setMessage(mode === "dp" || mode === "story" ? "Enter a valid Instagram profile, story link, or username." : "Enter a valid Instagram post or Reel URL.");
+      setMessage("Enter a valid Instagram link or username.");
       return;
     }
+    const requestMode = detected.mode;
+    const requestModeConfig = downloadModes.find((item) => item.id === requestMode) ?? downloadModes[0];
+    setDetectedKind(detected.kind);
+    if (requestMode !== mode) setMode(requestMode);
 
     if (!API_URL) {
       setStatus("error");
@@ -150,14 +222,15 @@ export default function Home() {
       const response = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: url.trim(), mode }),
+        body: JSON.stringify({ url: url.trim(), mode: requestMode }),
       });
 
       const data = (await response.json()) as DownloadResult & { error?: string };
       if (!response.ok) throw new Error(data.error || "We could not process this URL.");
-      const media = Array.isArray(data.media) ? mediaForMode(data.media, mode) : [];
+      setBackendStatus("ready");
+      const media = Array.isArray(data.media) ? mediaForMode(data.media, requestMode) : [];
       if (media.length === 0) {
-        throw new Error(`No downloadable ${mode === "all" ? "media" : activeMode.label.toLowerCase()} was found.`);
+        throw new Error(`No downloadable ${requestMode === "all" ? "media" : requestModeConfig.label.toLowerCase()} was found.`);
       }
 
       setResult({ ...data, media });
@@ -212,11 +285,18 @@ export default function Home() {
                 inputMode="url"
                 placeholder={activeMode.placeholder}
                 value={url}
-                onChange={(event) => setUrl(event.target.value)}
+                onChange={(event) => applyInput(event.target.value)}
+                onPaste={(event) => {
+                  const pasted = event.clipboardData.getData("text");
+                  if (pasted) {
+                    event.preventDefault();
+                    applyInput(pasted, true);
+                  }
+                }}
                 aria-describedby="form-note form-status"
                 autoComplete="url"
               />
-              <button className="paste-button" type="button" onClick={url ? () => setUrl("") : pasteFromClipboard}>
+              <button className="paste-button" type="button" onClick={url ? () => applyInput("") : pasteFromClipboard}>
                 {url ? "Clear" : "Paste"}
               </button>
             </div>
@@ -225,7 +305,15 @@ export default function Home() {
               {status === "loading" ? "Processing…" : `Download ${mode === "all" ? "media" : activeMode.label}`}
             </button>
           </div>
-          <p id="form-note" className="form-note">100% free. Public Instagram posts only. No account required.</p>
+          <p id="form-note" className="form-note">
+            100% free. Public Instagram posts only. No account required.
+            {detectedKind && <span className="input-detected">Detected: {inputKindLabels[detectedKind]}.</span>}
+            <span className={`backend-state ${backendStatus}`} aria-live="polite">
+              {backendStatus === "checking" && "Preparing downloader…"}
+              {backendStatus === "ready" && "Downloader ready."}
+              {backendStatus === "unavailable" && "Downloader starts on first request."}
+            </span>
+          </p>
           {message && <div id="form-status" className={`status ${status}`} role="status">{message}</div>}
 
           {result && (
