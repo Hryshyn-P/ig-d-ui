@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { NativeBannerAd, SocialBarAd } from "./ads";
 import { ConsentProvider, ConsentSettingsButton } from "./consent";
+import { ThemeToggle } from "./theme-toggle";
 
 type MediaItem = {
   url: string;
@@ -176,10 +177,13 @@ export default function Home() {
           <span className="brand-mark"><DownloadIcon /></span>
           Reel<span>Save</span>
         </a>
-        <nav aria-label="Main navigation">
-          <a href="#how">How it works</a>
-          <a href="#faq">FAQ</a>
-        </nav>
+        <div className="header-actions">
+          <nav aria-label="Main navigation">
+            <a href="#how">How it works</a>
+            <a href="#faq">FAQ</a>
+          </nav>
+          <ThemeToggle />
+        </div>
       </header>
 
       <section className="hero" id="top">
