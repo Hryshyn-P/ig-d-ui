@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { GoogleAdsenseScript, NativeBannerAd, SocialBarAd } from "./ads";
+import { NativeBannerAd, SocialBarAd } from "./ads";
 import { ConsentProvider, ConsentSettingsButton } from "./consent";
 
 type MediaItem = {
@@ -170,7 +170,6 @@ export default function Home() {
 
   return (
     <ConsentProvider><main>
-      <GoogleAdsenseScript />
       <SocialBarAd />
       <header className="site-header">
         <a className="brand" href="#top" aria-label="ReelSave home">
