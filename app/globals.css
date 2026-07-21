@@ -30,13 +30,18 @@ svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width:
 
 .site-header { height: 76px; max-width: 1180px; margin: auto; padding: 0 28px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,.055); }
 .brand { display: flex; align-items: center; font-size: 21px; font-weight: 800; letter-spacing: -.7px; }
+.brand-button { padding: 0; color: inherit; border: 0; cursor: pointer; background: none; }
 .brand > span:last-child { color: var(--green); }
 .brand-mark { width: 34px; height: 34px; margin-right: 10px; border: 1px solid rgba(156,255,87,.4); border-radius: 10px; display: grid; place-items: center; color: var(--green); background: rgba(156,255,87,.07); box-shadow: 0 0 25px rgba(156,255,87,.11); }
 .brand-mark svg { width: 18px; }
 nav { display: flex; gap: 32px; color: var(--muted); font-size: 13px; font-weight: 600; }
-nav a { transition: color .2s ease; }
-nav a:hover { color: var(--ink); }
+nav button { padding: 0; color: inherit; border: 0; cursor: pointer; background: none; transition: color .2s ease; }
+nav button:hover { color: var(--ink); }
 .header-actions { display: flex; align-items: center; gap: 26px; }
+.scroll-top { position: fixed; right: max(20px, env(safe-area-inset-right)); bottom: max(20px, env(safe-area-inset-bottom)); z-index: 20; width: 46px; height: 46px; padding: 0; display: grid; place-items: center; color: var(--ink); border: 1px solid rgba(255,255,255,.16); border-radius: 50%; cursor: pointer; background: rgba(20,24,21,.68); box-shadow: 0 10px 32px rgba(0,0,0,.28); opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(10px); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: opacity .2s ease, transform .2s ease, visibility .2s ease, border-color .2s ease; }
+.scroll-top.visible { opacity: .78; visibility: visible; pointer-events: auto; transform: translateY(0); }
+.scroll-top:hover, .scroll-top:focus-visible { opacity: 1; border-color: rgba(156,255,87,.55); outline: none; }
+.scroll-top svg { width: 22px; height: 22px; }
 .theme-toggle { width: 50px; height: 30px; padding: 0; border: 0; cursor: pointer; background: transparent; }
 .theme-toggle-track { width: 50px; height: 30px; padding: 3px; display: block; border: 1px solid rgba(255,255,255,.16); border-radius: 999px; background: #101411; transition: border-color .2s ease, background .2s ease; }
 .theme-toggle-thumb { width: 22px; height: 22px; display: grid; place-items: center; color: #071003; border-radius: 50%; background: var(--green); font-size: 14px; line-height: 1; transition: transform .25s ease, background .2s ease; }
@@ -63,7 +68,7 @@ h1 em { color: transparent; background: linear-gradient(90deg, #fff 5%, var(--gr
 .download-card label { display: block; margin-bottom: 10px; color: #c6ccc6; font-size: 12px; font-weight: 700; }
 .input-row { display: flex; gap: 10px; }
 .url-field { min-width: 0; flex: 1; position: relative; }
-.input-row input { width: 100%; height: 68px; padding: 0 88px 0 18px; color: var(--ink); border: 1px solid var(--line); border-radius: 11px; outline: none; background: #070908; }
+.input-row input { width: 100%; height: 68px; padding: 0 88px 0 18px; color: var(--ink); border: 1px solid rgba(156,255,87,.24); border-radius: 11px; outline: none; background: #070908; }
 .input-row input::placeholder { color: #4f5550; }
 .input-row input:focus { border-color: rgba(156,255,87,.7); box-shadow: 0 0 0 3px rgba(156,255,87,.08), 0 0 28px rgba(156,255,87,.08); }
 .input-row button { height: 68px; min-width: 158px; padding: 0 22px; display: flex; align-items: center; justify-content: center; gap: 9px; color: #071003; font-weight: 800; border: 0; border-radius: 11px; cursor: pointer; background: var(--green); box-shadow: 0 10px 30px rgba(156,255,87,.16); transition: transform .2s ease, box-shadow .2s ease; }
@@ -127,6 +132,7 @@ footer small { margin-top: 30px; color: #444944; }
 
 [data-theme="light"] body::before { opacity: .45; background-image: linear-gradient(rgba(19,38,23,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(19,38,23,.045) 1px,transparent 1px); }
 [data-theme="light"] .site-header { border-bottom-color: rgba(23,32,25,.09); }
+[data-theme="light"] .scroll-top { color: var(--ink); border-color: rgba(23,32,25,.16); background: rgba(255,255,255,.72); box-shadow: 0 10px 30px rgba(34,60,38,.16); }
 [data-theme="light"] .brand-mark { border-color: rgba(88,191,32,.35); background: rgba(88,191,32,.09); box-shadow: 0 0 25px rgba(88,191,32,.1); }
 [data-theme="light"] .hero::before { background: rgba(88,191,32,.18); }
 [data-theme="light"] .orb-one { background: rgba(88,191,32,.13); }
@@ -136,7 +142,7 @@ footer small { margin-top: 30px; color: #444944; }
 [data-theme="light"] .mode-tabs button.active { color: #fff; border-color: var(--green); background: var(--green); }
 [data-theme="light"] .download-card { border-color: rgba(23,32,25,.14); background: rgba(255,255,255,.9); box-shadow: 0 24px 70px rgba(34,60,38,.14),0 0 60px rgba(88,191,32,.06); }
 [data-theme="light"] .download-card label { color: #3f4941; }
-[data-theme="light"] .input-row input { background: #f8faf7; }
+[data-theme="light"] .input-row input { border-color: rgba(88,191,32,.3); background: #f8faf7; }
 [data-theme="light"] .input-row input::placeholder { color: #969e97; }
 [data-theme="light"] .input-row button { color: #fff; }
 [data-theme="light"] .input-row .paste-button { color: #358812; background: rgba(88,191,32,.1); }
@@ -163,6 +169,7 @@ footer small { margin-top: 30px; color: #444944; }
   .site-header { height: 66px; padding: 0 18px; }
   nav { display: none; }
   .header-actions { gap: 0; }
+  .scroll-top { right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); width: 44px; height: 44px; }
   .hero { min-height: 0; padding: 68px 16px 44px; }
   h1 { font-size: 44px; letter-spacing: -2.5px; }
   .hero-copy > p { font-size: 15px; }

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { NativeBannerAd, SocialBarAd } from "./ads";
 import { ConsentProvider, ConsentSettingsButton } from "./consent";
 import { ThemeToggle } from "./theme-toggle";
@@ -149,16 +149,32 @@ function MediaPreview({ result }: { result: DownloadResult }) {
 }
 
 export default function Home() {
+  const inputRef = useRef<HTMLInputElement>(null);
   const [mode, setMode] = useState<DownloadMode>("all");
   const [url, setUrl] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "error" | "success">("idle");
   const [message, setMessage] = useState("");
   const [result, setResult] = useState<DownloadResult | null>(null);
   const [detectedKind, setDetectedKind] = useState<InstagramInputKind | null>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const [backendStatus, setBackendStatus] = useState<"checking" | "ready" | "unavailable">(
     HEALTH_URL ? "checking" : "unavailable",
   );
   const activeMode = downloadModes.find((item) => item.id === mode) ?? downloadModes[0];
+
+  useEffect(() => {
+    if (window.location.hash) {
+      window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+      window.scrollTo({ top: 0, left: 0 });
+    }
+  }, []);
+
+  useEffect(() => {
+    const updateScrollTop = () => setShowScrollTop(window.scrollY > 320);
+    updateScrollTop();
+    window.addEventListener("scroll", updateScrollTop, { passive: true });
+    return () => window.removeEventListener("scroll", updateScrollTop);
+  }, []);
 
   useEffect(() => {
     if (!HEALTH_URL) return;
@@ -198,9 +214,20 @@ export default function Home() {
       const text = await navigator.clipboard.readText();
       if (text.trim()) applyInput(text, true);
     } catch {
+      inputRef.current?.focus();
       setStatus("error");
-      setMessage("Clipboard access was blocked. Paste the link manually.");
+      setMessage("Clipboard access is blocked. Touch and hold the field, then choose Paste.");
     }
+  }
+
+  function scrollToSection(id: string) {
+    const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+    document.getElementById(id)?.scrollIntoView({ behavior, block: "start" });
+  }
+
+  function scrollToTop() {
+    const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+    window.scrollTo({ top: 0, behavior });
   }
 
   async function submit(event: FormEvent) {
@@ -255,15 +282,25 @@ export default function Home() {
   return (
     <ConsentProvider><main>
       <SocialBarAd />
+      <button
+        className={`scroll-top${showScrollTop ? " visible" : ""}`}
+        type="button"
+        aria-label="Scroll to top"
+        title="Scroll to top"
+        tabIndex={showScrollTop ? 0 : -1}
+        onClick={scrollToTop}
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 6-6 6 6" /></svg>
+      </button>
       <header className="site-header">
-        <a className="brand" href="#top" aria-label="ReelSave home">
+        <button className="brand brand-button" type="button" aria-label="ReelSave home" onClick={() => scrollToSection("top")}>
           <span className="brand-mark"><DownloadIcon /></span>
           Reel<span>Save</span>
-        </a>
+        </button>
         <div className="header-actions">
           <nav aria-label="Main navigation">
-            <a href="#how">How it works</a>
-            <a href="#faq">FAQ</a>
+            <button type="button" onClick={() => scrollToSection("how")}>How it works</button>
+            <button type="button" onClick={() => scrollToSection("faq")}>FAQ</button>
           </nav>
           <ThemeToggle />
         </div>
@@ -291,6 +328,7 @@ export default function Home() {
             <div className="url-field">
               <input
                 id="instagram-url"
+                ref={inputRef}
                 type="text"
                 inputMode="url"
                 placeholder={activeMode.placeholder}
@@ -384,7 +422,7 @@ export default function Home() {
       </section>
 
       <footer>
-        <a className="brand footer-brand" href="#top"><span className="brand-mark"><DownloadIcon /></span>Reel<span>Save</span></a>
+        <button className="brand brand-button footer-brand" type="button" onClick={() => scrollToSection("top")}><span className="brand-mark"><DownloadIcon /></span>Reel<span>Save</span></button>
         <p>Download videos from public Instagram Reels and posts for free in the highest available quality. ReelSave is not affiliated with Instagram or Meta.</p>
         <div><a href="/terms/">Terms</a><a href="/privacy/">Privacy</a><ConsentSettingsButton /></div>
         <small>© {new Date().getFullYear()} ReelSave</small>
