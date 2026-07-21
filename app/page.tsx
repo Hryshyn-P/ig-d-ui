@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { NativeBannerAd, SocialBarAd } from "./ads";
 
 type MediaItem = {
   url: string;
@@ -38,13 +39,31 @@ function DownloadIcon() {
   );
 }
 
-function AdSlot({ size }: { size: string }) {
-  return (
-    <aside className="ad-slot" aria-label="Advertisement" data-ad-slot={size}>
-      <span>ADVERTISEMENT</span>
-      <small>{size}</small>
-    </aside>
-  );
+function MediaPreview({ result }: { result: DownloadResult }) {
+  const video = result.media.find((item) => item.type !== "image");
+
+  if (video) {
+    return (
+      <video
+        className="media-preview"
+        controls
+        playsInline
+        preload="metadata"
+        poster={result.thumbnail}
+        aria-label="Instagram video preview"
+      >
+        <source src={video.url} />
+        Your browser does not support video preview.
+      </video>
+    );
+  }
+
+  if (result.thumbnail) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img className="media-preview" src={result.thumbnail} alt="Instagram post preview" />;
+  }
+
+  return null;
 }
 
 export default function Home() {
@@ -65,7 +84,7 @@ export default function Home() {
 
     if (!API_URL) {
       setStatus("error");
-      setMessage("The interface is ready. Connect a backend API to enable downloads.");
+      setMessage("Downloads are temporarily unavailable. Please try again later.");
       return;
     }
 
@@ -96,6 +115,7 @@ export default function Home() {
 
   return (
     <main>
+      <SocialBarAd />
       <header className="site-header">
         <a className="brand" href="#top" aria-label="ReelSave home">
           <span className="brand-mark"><DownloadIcon /></span>
@@ -111,9 +131,9 @@ export default function Home() {
         <div className="orb orb-one" />
         <div className="orb orb-two" />
         <div className="hero-copy">
-          <div className="eyebrow">FAST • PRIVATE • NO SIGN-UP</div>
-          <h1>Instagram media.<br /><em>Saved cleanly.</em></h1>
-          <p>Paste a public Reel or post URL and save the available media in its original quality.</p>
+          <div className="eyebrow">FREE • HIGH QUALITY • NO SIGN-UP</div>
+          <h1>Free Instagram<br /><em>Video Downloader</em></h1>
+          <p>Download Instagram Reels and post videos in the highest available quality. Paste a public Instagram link and save the video to your device for free.</p>
         </div>
 
         <form className="download-card" onSubmit={submit} noValidate>
@@ -131,17 +151,15 @@ export default function Home() {
             />
             <button type="submit" disabled={status === "loading"}>
               <DownloadIcon />
-              {status === "loading" ? "Processing…" : "Download"}
+              {status === "loading" ? "Processing…" : "Download Video in High Quality"}
             </button>
           </div>
-          <p id="form-note" className="form-note">Public posts only. No login required.</p>
+          <p id="form-note" className="form-note">100% free. Public Instagram posts only. No account required.</p>
           {message && <div id="form-status" className={`status ${status}`} role="status">{message}</div>}
 
           {result && (
             <div className="results">
-              {/* Remote preview hosts are determined by the configured downloader API. */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              {result.thumbnail && <img src={result.thumbnail} alt="Post preview" />}
+              <MediaPreview result={result} />
               <div className="result-list">
                 <strong>{result.title || "Instagram media"}</strong>
                 {result.media.map((item, index) => (
@@ -156,49 +174,49 @@ export default function Home() {
         </form>
 
         <div className="trust-row">
-          <span>✓ No installation</span><span>✓ Works everywhere</span><span>✓ No file storage</span>
+          <span>✓ High-quality video</span><span>✓ Free to use</span><span>✓ No Instagram login</span>
         </div>
       </section>
 
-      <AdSlot size="leaderboard-top" />
+      <NativeBannerAd />
 
       <section className="section" id="how">
         <div className="section-heading">
-          <span>THREE STEPS</span>
-          <h2>From link to file</h2>
-          <p>Done in under a minute.</p>
+          <span>HOW IT WORKS</span>
+          <h2>How to download an Instagram video</h2>
+          <p>Save a public Reel or post video in its highest available quality.</p>
         </div>
         <div className="steps">
-          <article><b>01</b><div className="step-icon">↗</div><h3>Copy the link</h3><p>Open the Instagram post and choose “Copy link”.</p></article>
-          <article><b>02</b><div className="step-icon">⌁</div><h3>Paste it here</h3><p>Drop the URL into the field above and press Download.</p></article>
-          <article><b>03</b><div className="step-icon">↓</div><h3>Save the file</h3><p>Choose the format you want and save it to your device.</p></article>
+          <article><b>01</b><div className="step-icon">↗</div><h3>Copy the Instagram link</h3><p>Open a public Reel or post on Instagram and select “Copy link”.</p></article>
+          <article><b>02</b><div className="step-icon">⌁</div><h3>Paste the link</h3><p>Paste the Instagram URL into the downloader above and press the button.</p></article>
+          <article><b>03</b><div className="step-icon">↓</div><h3>Download the video</h3><p>Select an available video and save it to your phone or computer.</p></article>
         </div>
       </section>
 
       <section className="content-grid">
         <div className="benefits">
-          <span className="kicker">WHY REELSAVE</span>
-          <h2>Nothing in the way</h2>
+          <span className="kicker">INSTAGRAM VIDEO DOWNLOADER</span>
+          <h2>Free and simple to use</h2>
           <ul>
-            <li><i>⚡</i><div><strong>Fast by design</strong><p>The shortest path from a link to your file.</p></div></li>
-            <li><i>◇</i><div><strong>Built for every screen</strong><p>Phone, tablet, or desktop — no app required.</p></div></li>
-            <li><i>◎</i><div><strong>Privacy first</strong><p>Your links and downloaded files are never stored here.</p></div></li>
+            <li><i>⚡</i><div><strong>High-quality video downloads</strong><p>Save supported Instagram videos in the highest quality available from the source.</p></div></li>
+            <li><i>◇</i><div><strong>Works in your browser</strong><p>Use it on a phone, tablet, or computer without installing an app.</p></div></li>
+            <li><i>◎</i><div><strong>No Instagram account needed</strong><p>Paste a public link without sharing your Instagram login or password.</p></div></li>
           </ul>
         </div>
-        <AdSlot size="rectangle-sidebar" />
       </section>
 
       <section className="section faq" id="faq">
-        <div className="section-heading"><span>FAQ</span><h2>Good to know</h2></div>
+        <div className="section-heading"><span>FAQ</span><h2>Instagram video downloader FAQ</h2></div>
         <details><summary>Can I download from private accounts?</summary><p>No. ReelSave only processes public media and will never ask for your login or password.</p></details>
         <details><summary>Where is the downloaded file saved?</summary><p>In your browser’s default downloads folder. This website does not store the file.</p></details>
-        <details><summary>Is ReelSave free?</summary><p>Yes. The page may display ads to support the service.</p></details>
+        <details><summary>Is this Instagram video downloader free?</summary><p>Yes. ReelSave is free to use. The page may display ads to support the service.</p></details>
+        <details><summary>Can I download Instagram videos in HD?</summary><p>ReelSave provides the highest video quality available from the public Instagram post, including HD when the source provides it.</p></details>
         <details><summary>What content can I download?</summary><p>Only your own media or content you have permission from the copyright owner to download and use.</p></details>
       </section>
 
       <footer>
         <a className="brand footer-brand" href="#top"><span className="brand-mark"><DownloadIcon /></span>Reel<span>Save</span></a>
-        <p>A tool for saving content available to you. ReelSave is not affiliated with Instagram or Meta.</p>
+        <p>Download videos from public Instagram Reels and posts for free in the highest available quality. ReelSave is not affiliated with Instagram or Meta.</p>
         <div><a href="#faq">Terms</a><a href="#faq">Privacy</a></div>
         <small>© {new Date().getFullYear()} ReelSave</small>
       </footer>

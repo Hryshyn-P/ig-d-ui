@@ -4,8 +4,9 @@ import "./globals.css";
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 export const metadata: Metadata = {
-  title: "ReelSave — Download Instagram Videos",
-  description: "A fast, private way to save public Instagram Reels and posts.",
+  title: "Free Instagram Video Downloader in High Quality — ReelSave",
+  description:
+    "Download videos from public Instagram Reels and posts for free in the highest available quality. No sign-up or app required.",
   other: { "codex-preview": "development" },
   icons: { icon: `${basePath}/favicon.svg`, shortcut: `${basePath}/favicon.svg` },
 };

@@ -35,6 +35,9 @@ jobs:
           GITHUB_PAGES: "true"
           NEXT_PUBLIC_BASE_PATH: ""
           NEXT_PUBLIC_DOWNLOADER_API_URL: ${{ secrets.DOWNLOADER_API_URL }}
+          NEXT_PUBLIC_ADSTERRA_SOCIAL_BAR_SRC: ${{ vars.ADSTERRA_SOCIAL_BAR_SRC }}
+          NEXT_PUBLIC_ADSTERRA_NATIVE_SCRIPT_SRC: ${{ vars.ADSTERRA_NATIVE_SCRIPT_SRC }}
+          NEXT_PUBLIC_ADSTERRA_NATIVE_CONTAINER_ID: ${{ vars.ADSTERRA_NATIVE_CONTAINER_ID }}
         run: npm run build
 
       - name: Upload Pages artifact

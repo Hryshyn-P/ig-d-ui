@@ -41,9 +41,12 @@ The workflow in `.github/workflows/deploy-pages.yml` builds a static Next.js exp
 1. Push the project to the `main` branch.
 2. In **Settings → Pages**, select **GitHub Actions** as the source.
 3. Add an optional `DOWNLOADER_API_URL` repository secret with the HTTPS backend endpoint.
-4. Push to `main` or run **Deploy to GitHub Pages** manually from the Actions tab.
+4. To enable ads, add optional repository variables `ADSTERRA_SOCIAL_BAR_SRC`, `ADSTERRA_NATIVE_SCRIPT_SRC`, and `ADSTERRA_NATIVE_CONTAINER_ID` using the values from the corresponding Adsterra snippets.
+5. Push to `main` or run **Deploy to GitHub Pages** manually from the Actions tab.
 
 The workflow automatically applies the repository name as the GitHub Pages base path. For a custom domain, set `NEXT_PUBLIC_BASE_PATH` to an empty string in the workflow.
+
+Adsterra scripts are loaded only when their complete configuration is present and uses HTTPS. `app/rewarded-ads.ts` contains a provider interface for a future Google Ad Manager rewarded-ad integration.
 
 ## Checks
 

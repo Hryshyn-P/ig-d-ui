@@ -49,7 +49,17 @@ Workflow сам учитывает имя репозитория как `basePat
 
 ## Реклама
 
-Компонент `AdSlot` в `app/page.tsx` отмечает места для рекламы. После одобрения рекламной сетью замените содержимое слотов её официальным кодом. Не загружайте рекламный скрипт до получения согласия пользователя там, где это требуется законом.
+Frontend поддерживает Adsterra Social Bar и Native Banner. После добавления сайта в Adsterra создайте в **Settings → Secrets and variables → Actions → Variables**:
+
+- `ADSTERRA_SOCIAL_BAR_SRC` — HTTPS `src` из кода Social Bar;
+- `ADSTERRA_NATIVE_SCRIPT_SRC` — HTTPS `src` из кода Native Banner;
+- `ADSTERRA_NATIVE_CONTAINER_ID` — `id` контейнера Native Banner, включая `container-`, если он есть в выданном коде.
+
+После изменения variables перезапустите workflow, потому что значения встраиваются во frontend во время сборки. Если variables не заданы или некорректны, рекламные компоненты ничего не отображают и не мешают скачиванию.
+
+Файл `app/rewarded-ads.ts` определяет общий интерфейс rewarded-рекламы. В будущем Google Ad Manager можно подключить реализацией `RewardedAdProvider`, которая возвращает `granted` только после события `rewardedSlotGranted`.
+
+Не загружайте рекламный скрипт до получения согласия пользователя там, где это требуется законом.
 
 ## Ограничения
 
