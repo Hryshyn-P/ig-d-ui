@@ -98,6 +98,16 @@ function mediaForMode(media: MediaItem[], mode: DownloadMode) {
   return media;
 }
 
+function mediaDownloadUrl(value: string) {
+  try {
+    const parsed = new URL(value);
+    if (parsed.pathname === "/api/media") parsed.searchParams.set("download", "1");
+    return parsed.href;
+  } catch {
+    return value;
+  }
+}
+
 function DownloadIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -322,7 +332,7 @@ export default function Home() {
               <div className="result-list">
                 <strong>{result.title || "Instagram media"}</strong>
                 {result.media.map((item, index) => (
-                  <a key={`${item.url}-${index}`} href={item.url} download={item.filename} target="_blank" rel="noreferrer">
+                  <a key={`${item.url}-${index}`} href={mediaDownloadUrl(item.url)} download={item.filename}>
                     <DownloadIcon />
                     Download {item.type === "image" ? "image" : item.type === "audio" ? "audio" : "video"} {item.quality && `• ${item.quality}`}
                   </a>
