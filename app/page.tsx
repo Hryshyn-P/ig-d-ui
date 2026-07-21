@@ -40,8 +40,8 @@ function DownloadIcon() {
 
 function AdSlot({ size }: { size: string }) {
   return (
-    <aside className="ad-slot" aria-label="Рекламный блок" data-ad-slot={size}>
-      <span>РЕКЛАМА</span>
+    <aside className="ad-slot" aria-label="Advertisement" data-ad-slot={size}>
+      <span>ADVERTISEMENT</span>
       <small>{size}</small>
     </aside>
   );
@@ -59,18 +59,18 @@ export default function Home() {
 
     if (!isInstagramUrl(url.trim())) {
       setStatus("error");
-      setMessage("Вставьте корректную ссылку на публикацию, Reel или IGTV в Instagram.");
+      setMessage("Enter a valid Instagram post, Reel, or IGTV URL.");
       return;
     }
 
     if (!API_URL) {
       setStatus("error");
-      setMessage("Интерфейс готов. Для скачивания владелец сайта должен подключить backend API.");
+      setMessage("The interface is ready. Connect a backend API to enable downloads.");
       return;
     }
 
     setStatus("loading");
-    setMessage("Получаем доступные файлы…");
+    setMessage("Finding available media…");
 
     try {
       const response = await fetch(API_URL, {
@@ -80,30 +80,30 @@ export default function Home() {
       });
 
       const data = (await response.json()) as DownloadResult & { error?: string };
-      if (!response.ok) throw new Error(data.error || "Не удалось обработать ссылку.");
+      if (!response.ok) throw new Error(data.error || "We could not process this URL.");
       if (!Array.isArray(data.media) || data.media.length === 0) {
-        throw new Error("В публикации не найдено доступных файлов.");
+        throw new Error("No downloadable media was found in this post.");
       }
 
       setResult(data);
       setStatus("success");
-      setMessage("Готово — выберите файл.");
+      setMessage("Ready — choose a file.");
     } catch (error) {
       setStatus("error");
-      setMessage(error instanceof Error ? error.message : "Что-то пошло не так. Попробуйте ещё раз.");
+      setMessage(error instanceof Error ? error.message : "Something went wrong. Please try again.");
     }
   }
 
   return (
     <main>
       <header className="site-header">
-        <a className="brand" href="#top" aria-label="ReelSave — на главную">
+        <a className="brand" href="#top" aria-label="ReelSave home">
           <span className="brand-mark"><DownloadIcon /></span>
           Reel<span>Save</span>
         </a>
-        <nav aria-label="Основная навигация">
-          <a href="#how">Как скачать</a>
-          <a href="#faq">Вопросы</a>
+        <nav aria-label="Main navigation">
+          <a href="#how">How it works</a>
+          <a href="#faq">FAQ</a>
         </nav>
       </header>
 
@@ -111,13 +111,13 @@ export default function Home() {
         <div className="orb orb-one" />
         <div className="orb orb-two" />
         <div className="hero-copy">
-          <div className="eyebrow">Быстро • Просто • Без регистрации</div>
-          <h1>Скачивайте видео<br />из Instagram</h1>
-          <p>Вставьте ссылку на Reel или публикацию и сохраните доступный файл в исходном качестве.</p>
+          <div className="eyebrow">FAST • PRIVATE • NO SIGN-UP</div>
+          <h1>Instagram media.<br /><em>Saved cleanly.</em></h1>
+          <p>Paste a public Reel or post URL and save the available media in its original quality.</p>
         </div>
 
         <form className="download-card" onSubmit={submit} noValidate>
-          <label htmlFor="instagram-url">Ссылка на публикацию</label>
+          <label htmlFor="instagram-url">Instagram URL</label>
           <div className="input-row">
             <input
               id="instagram-url"
@@ -131,23 +131,23 @@ export default function Home() {
             />
             <button type="submit" disabled={status === "loading"}>
               <DownloadIcon />
-              {status === "loading" ? "Обработка…" : "Скачать"}
+              {status === "loading" ? "Processing…" : "Download"}
             </button>
           </div>
-          <p id="form-note" className="form-note">Работает только с общедоступными публикациями.</p>
+          <p id="form-note" className="form-note">Public posts only. No login required.</p>
           {message && <div id="form-status" className={`status ${status}`} role="status">{message}</div>}
 
           {result && (
             <div className="results">
               {/* Remote preview hosts are determined by the configured downloader API. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              {result.thumbnail && <img src={result.thumbnail} alt="Превью публикации" />}
+              {result.thumbnail && <img src={result.thumbnail} alt="Post preview" />}
               <div className="result-list">
                 <strong>{result.title || "Instagram media"}</strong>
                 {result.media.map((item, index) => (
                   <a key={`${item.url}-${index}`} href={item.url} download={item.filename} target="_blank" rel="noreferrer">
                     <DownloadIcon />
-                    Скачать {item.type === "image" ? "изображение" : "видео"} {item.quality && `• ${item.quality}`}
+                    Download {item.type === "image" ? "image" : "video"} {item.quality && `• ${item.quality}`}
                   </a>
                 ))}
               </div>
@@ -156,7 +156,7 @@ export default function Home() {
         </form>
 
         <div className="trust-row">
-          <span>✓ Без установки</span><span>✓ Адаптивно</span><span>✓ Без хранения файлов</span>
+          <span>✓ No installation</span><span>✓ Works everywhere</span><span>✓ No file storage</span>
         </div>
       </section>
 
@@ -164,42 +164,42 @@ export default function Home() {
 
       <section className="section" id="how">
         <div className="section-heading">
-          <span>ТРИ ШАГА</span>
-          <h2>Как скачать видео</h2>
-          <p>Всё занимает меньше минуты.</p>
+          <span>THREE STEPS</span>
+          <h2>From link to file</h2>
+          <p>Done in under a minute.</p>
         </div>
         <div className="steps">
-          <article><b>01</b><div className="step-icon">↗</div><h3>Скопируйте ссылку</h3><p>Откройте публикацию в Instagram и выберите «Копировать ссылку».</p></article>
-          <article><b>02</b><div className="step-icon">⌁</div><h3>Вставьте её</h3><p>Вернитесь сюда, вставьте адрес в поле выше и нажмите «Скачать».</p></article>
-          <article><b>03</b><div className="step-icon">↓</div><h3>Сохраните файл</h3><p>Выберите нужный вариант и сохраните его на своё устройство.</p></article>
+          <article><b>01</b><div className="step-icon">↗</div><h3>Copy the link</h3><p>Open the Instagram post and choose “Copy link”.</p></article>
+          <article><b>02</b><div className="step-icon">⌁</div><h3>Paste it here</h3><p>Drop the URL into the field above and press Download.</p></article>
+          <article><b>03</b><div className="step-icon">↓</div><h3>Save the file</h3><p>Choose the format you want and save it to your device.</p></article>
         </div>
       </section>
 
       <section className="content-grid">
         <div className="benefits">
-          <span className="kicker">ПОЧЕМУ REELSAVE</span>
-          <h2>Ничего лишнего</h2>
+          <span className="kicker">WHY REELSAVE</span>
+          <h2>Nothing in the way</h2>
           <ul>
-            <li><i>⚡</i><div><strong>Быстрая обработка</strong><p>Минимум действий от ссылки до файла.</p></div></li>
-            <li><i>◇</i><div><strong>Работает на любом устройстве</strong><p>Телефон, планшет или обычный компьютер.</p></div></li>
-            <li><i>◎</i><div><strong>Конфиденциальность</strong><p>Сайт не хранит ссылки и скачанные файлы.</p></div></li>
+            <li><i>⚡</i><div><strong>Fast by design</strong><p>The shortest path from a link to your file.</p></div></li>
+            <li><i>◇</i><div><strong>Built for every screen</strong><p>Phone, tablet, or desktop — no app required.</p></div></li>
+            <li><i>◎</i><div><strong>Privacy first</strong><p>Your links and downloaded files are never stored here.</p></div></li>
           </ul>
         </div>
         <AdSlot size="rectangle-sidebar" />
       </section>
 
       <section className="section faq" id="faq">
-        <div className="section-heading"><span>FAQ</span><h2>Частые вопросы</h2></div>
-        <details><summary>Можно ли скачивать видео из закрытых аккаунтов?</summary><p>Нет. Сервис обрабатывает только общедоступные материалы и не запрашивает логин или пароль.</p></details>
-        <details><summary>Где сохраняется скачанный файл?</summary><p>В стандартную папку загрузок вашего браузера. Сам сайт файл не хранит.</p></details>
-        <details><summary>Это бесплатно?</summary><p>Да. Для поддержки проекта на странице могут показываться рекламные объявления.</p></details>
-        <details><summary>Какие публикации можно скачивать?</summary><p>Только собственные материалы либо контент, на скачивание и использование которого у вас есть разрешение правообладателя.</p></details>
+        <div className="section-heading"><span>FAQ</span><h2>Good to know</h2></div>
+        <details><summary>Can I download from private accounts?</summary><p>No. ReelSave only processes public media and will never ask for your login or password.</p></details>
+        <details><summary>Where is the downloaded file saved?</summary><p>In your browser’s default downloads folder. This website does not store the file.</p></details>
+        <details><summary>Is ReelSave free?</summary><p>Yes. The page may display ads to support the service.</p></details>
+        <details><summary>What content can I download?</summary><p>Only your own media or content you have permission from the copyright owner to download and use.</p></details>
       </section>
 
       <footer>
         <a className="brand footer-brand" href="#top"><span className="brand-mark"><DownloadIcon /></span>Reel<span>Save</span></a>
-        <p>Инструмент для сохранения доступного вам контента. Мы не связаны с Instagram или Meta.</p>
-        <div><a href="#faq">Условия использования</a><a href="#faq">Конфиденциальность</a></div>
+        <p>A tool for saving content available to you. ReelSave is not affiliated with Instagram or Meta.</p>
+        <div><a href="#faq">Terms</a><a href="#faq">Privacy</a></div>
         <small>© {new Date().getFullYear()} ReelSave</small>
       </footer>
     </main>
