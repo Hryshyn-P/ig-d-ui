@@ -36,14 +36,22 @@ nav a:hover { color: var(--ink); }
 h1 { margin: 18px 0 18px; font-size: clamp(46px, 6vw, 72px); line-height: .98; letter-spacing: -4px; }
 h1 em { color: transparent; background: linear-gradient(90deg, #fff 5%, var(--green) 48%, var(--orange)); background-clip: text; font-style: normal; }
 .hero-copy > p { max-width: 600px; margin: 0 auto; color: var(--muted); font-size: 16px; line-height: 1.65; }
+.mode-tabs { width: min(760px, 100%); margin: 22px auto 4px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.mode-tabs button { min-height: 40px; padding: 0 15px; display: inline-flex; align-items: center; gap: 7px; color: #a7afa8; border: 1px solid rgba(255,255,255,.15); border-radius: 999px; cursor: pointer; background: rgba(8,10,9,.72); font-size: 13px; font-weight: 700; transition: color .2s ease, border-color .2s ease, background .2s ease; }
+.mode-tabs button:hover { color: var(--ink); border-color: rgba(156,255,87,.35); }
+.mode-tabs button.active { color: #071003; border-color: var(--green); background: var(--green); }
+.mode-tabs button span { font-size: 17px; line-height: 1; }
 
 .download-card { width: min(780px, 100%); margin: 38px auto 0; padding: 22px; text-align: left; border: 1px solid rgba(255,255,255,.13); border-radius: 18px; background: rgba(11,13,12,.88); box-shadow: 0 24px 80px rgba(0,0,0,.65), 0 0 70px rgba(156,255,87,.045); backdrop-filter: blur(18px); }
 .download-card label { display: block; margin-bottom: 10px; color: #c6ccc6; font-size: 12px; font-weight: 700; }
 .input-row { display: flex; gap: 10px; }
-.input-row input { min-width: 0; flex: 1; height: 68px; padding: 0 18px; color: var(--ink); border: 1px solid var(--line); border-radius: 11px; outline: none; background: #070908; }
+.url-field { min-width: 0; flex: 1; position: relative; }
+.input-row input { width: 100%; height: 68px; padding: 0 88px 0 18px; color: var(--ink); border: 1px solid var(--line); border-radius: 11px; outline: none; background: #070908; }
 .input-row input::placeholder { color: #4f5550; }
 .input-row input:focus { border-color: rgba(156,255,87,.7); box-shadow: 0 0 0 3px rgba(156,255,87,.08), 0 0 28px rgba(156,255,87,.08); }
 .input-row button { height: 68px; min-width: 158px; padding: 0 22px; display: flex; align-items: center; justify-content: center; gap: 9px; color: #071003; font-weight: 800; border: 0; border-radius: 11px; cursor: pointer; background: var(--green); box-shadow: 0 10px 30px rgba(156,255,87,.16); transition: transform .2s ease, box-shadow .2s ease; }
+.input-row .paste-button { position: absolute; right: 8px; top: 8px; z-index: 1; width: auto; height: 52px; min-width: 68px; padding: 0 12px; color: var(--green); border: 1px solid rgba(156,255,87,.22); background: rgba(156,255,87,.08); box-shadow: none; font-size: 12px; }
+.input-row .paste-button:hover { transform: none; background: rgba(156,255,87,.14); box-shadow: none; }
 .input-row button:hover { transform: translateY(-1px); box-shadow: 0 12px 38px rgba(156,255,87,.25); }
 .input-row button:disabled { opacity: .55; cursor: wait; transform: none; }
 .form-note { margin: 11px 2px 0; color: #697069; font-size: 11px; }
@@ -52,6 +60,7 @@ h1 em { color: transparent; background: linear-gradient(90deg, #fff 5%, var(--gr
 .status.loading, .status.success { color: var(--green); border-color: rgba(156,255,87,.22); background: rgba(156,255,87,.06); }
 .results { display: grid; gap: 16px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
 .media-preview { display: block; width: 100%; max-height: 420px; aspect-ratio: 16 / 9; border: 1px solid var(--line); border-radius: 12px; background: #020302; object-fit: contain; }
+.audio-preview { width: 100%; }
 .result-list { flex: 1; display: flex; flex-direction: column; gap: 9px; }
 .result-list > a { width: fit-content; padding: 9px 13px; display: flex; align-items: center; gap: 7px; color: #071003; border-radius: 8px; background: var(--green); font-size: 13px; font-weight: 800; }
 .result-list svg { width: 17px; }
@@ -98,9 +107,12 @@ footer small { margin-top: 30px; color: #444944; }
   .hero { min-height: 0; padding: 68px 16px 44px; }
   h1 { font-size: 44px; letter-spacing: -2.5px; }
   .hero-copy > p { font-size: 15px; }
+  .mode-tabs { margin-top: 18px; gap: 7px; }
+  .mode-tabs button { min-height: 38px; padding: 0 12px; font-size: 12px; }
   .download-card { padding: 16px; margin-top: 30px; border-radius: 15px; }
   .input-row { flex-direction: column; }
-  .input-row input { width: 100%; height: 60px; min-height: 60px; flex: 0 0 60px; }
+  .input-row input { height: 60px; min-height: 60px; }
+  .input-row .paste-button { top: 6px; right: 6px; height: 48px; }
   .input-row button { width: 100%; }
   .trust-row { gap: 9px; flex-wrap: wrap; }
   .trust-row span { width: 46%; }

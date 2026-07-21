@@ -14,8 +14,10 @@ Set `NEXT_PUBLIC_DOWNLOADER_API_URL` to an HTTPS backend endpoint to enable down
 The frontend sends:
 
 ```json
-{ "url": "https://www.instagram.com/reel/..." }
+{ "url": "https://www.instagram.com/reel/...", "mode": "reels" }
 ```
+
+`mode` is required and must be one of `all`, `reels`, `video`, `photo`, `dp`, `story`, or `audio`. For `dp` and `story`, `url` may also contain an Instagram username.
 
 The backend should return:
 

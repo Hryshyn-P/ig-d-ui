@@ -5,10 +5,29 @@ import { NativeBannerAd, SocialBarAd } from "./ads";
 
 type MediaItem = {
   url: string;
-  type?: "video" | "image";
+  type?: "video" | "image" | "audio";
   quality?: string;
   filename?: string;
 };
+
+type DownloadMode = "all" | "reels" | "video" | "photo" | "dp" | "story" | "audio";
+
+const downloadModes: Array<{
+  id: DownloadMode;
+  label: string;
+  icon: string;
+  title: string;
+  description: string;
+  placeholder: string;
+}> = [
+  { id: "all", label: "All", icon: "⌕", title: "Instagram Downloader", description: "Download public Instagram Reels, videos, photos, stories, and audio in the best available quality.", placeholder: "Paste any Instagram link" },
+  { id: "reels", label: "Reels", icon: "▻", title: "Instagram Reels Downloader", description: "Save public Instagram Reels in their highest available video quality.", placeholder: "Paste Instagram Reel link" },
+  { id: "video", label: "Video", icon: "▹", title: "Instagram Video Downloader", description: "Download videos from public Instagram posts without installing an app.", placeholder: "Paste Instagram video link" },
+  { id: "photo", label: "Photo", icon: "▧", title: "Instagram Photo Downloader", description: "Save photos and carousel images from public Instagram posts.", placeholder: "Paste Instagram photo link" },
+  { id: "dp", label: "DP", icon: "♙", title: "Instagram Profile Picture Downloader", description: "Download the public profile picture for an Instagram account.", placeholder: "Paste profile link or enter @username" },
+  { id: "story", label: "Story", icon: "◉", title: "Instagram Story Downloader", description: "Save currently available stories from public Instagram accounts.", placeholder: "Paste story/profile link or enter @username" },
+  { id: "audio", label: "Audio", icon: "♫", title: "Instagram Audio Downloader", description: "Download the audio track made available by a public Instagram Reel.", placeholder: "Paste Instagram Reel link" },
+];
 
 type DownloadResult = {
   title?: string;
@@ -18,17 +37,27 @@ type DownloadResult = {
 
 const API_URL = process.env.NEXT_PUBLIC_DOWNLOADER_API_URL?.trim();
 
-function isInstagramUrl(value: string) {
+function isInstagramInput(value: string, mode: DownloadMode) {
+  if ((mode === "dp" || mode === "story") && /^@?[A-Za-z0-9._]{1,30}$/.test(value)) {
+    return true;
+  }
+
   try {
     const url = new URL(value);
-    return (
-      url.protocol === "https:" &&
-      ["instagram.com", "www.instagram.com"].includes(url.hostname) &&
-      /^\/(reel|reels|p|tv)\//.test(url.pathname)
-    );
+    if (url.protocol !== "https:" || !["instagram.com", "www.instagram.com"].includes(url.hostname)) return false;
+    if (mode === "dp") return /^\/[A-Za-z0-9._]+\/?$/.test(url.pathname);
+    if (mode === "story") return /^\/(stories\/|[A-Za-z0-9._]+\/?$)/.test(url.pathname);
+    return /^\/(reel|reels|p|tv)\//.test(url.pathname);
   } catch {
     return false;
   }
+}
+
+function mediaForMode(media: MediaItem[], mode: DownloadMode) {
+  if (mode === "photo" || mode === "dp") return media.filter((item) => item.type === "image");
+  if (mode === "audio") return media.filter((item) => item.type === "audio");
+  if (mode === "reels" || mode === "video") return media.filter((item) => item.type !== "image" && item.type !== "audio");
+  return media;
 }
 
 function DownloadIcon() {
@@ -40,7 +69,12 @@ function DownloadIcon() {
 }
 
 function MediaPreview({ result }: { result: DownloadResult }) {
+  const audio = result.media.find((item) => item.type === "audio");
   const video = result.media.find((item) => item.type !== "image");
+
+  if (audio) {
+    return <audio className="audio-preview" controls preload="metadata" src={audio.url}>Your browser does not support audio preview.</audio>;
+  }
 
   if (video) {
     return (
@@ -67,18 +101,37 @@ function MediaPreview({ result }: { result: DownloadResult }) {
 }
 
 export default function Home() {
+  const [mode, setMode] = useState<DownloadMode>("all");
   const [url, setUrl] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "error" | "success">("idle");
   const [message, setMessage] = useState("");
   const [result, setResult] = useState<DownloadResult | null>(null);
+  const activeMode = downloadModes.find((item) => item.id === mode) ?? downloadModes[0];
+
+  function selectMode(nextMode: DownloadMode) {
+    setMode(nextMode);
+    setResult(null);
+    setMessage("");
+    setStatus("idle");
+  }
+
+  async function pasteFromClipboard() {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text.trim()) setUrl(text.trim());
+    } catch {
+      setStatus("error");
+      setMessage("Clipboard access was blocked. Paste the link manually.");
+    }
+  }
 
   async function submit(event: FormEvent) {
     event.preventDefault();
     setResult(null);
 
-    if (!isInstagramUrl(url.trim())) {
+    if (!isInstagramInput(url.trim(), mode)) {
       setStatus("error");
-      setMessage("Enter a valid Instagram post, Reel, or IGTV URL.");
+      setMessage(mode === "dp" || mode === "story" ? "Enter a valid Instagram profile, story link, or username." : "Enter a valid Instagram post or Reel URL.");
       return;
     }
 
@@ -95,16 +148,17 @@ export default function Home() {
       const response = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: url.trim() }),
+        body: JSON.stringify({ url: url.trim(), mode }),
       });
 
       const data = (await response.json()) as DownloadResult & { error?: string };
       if (!response.ok) throw new Error(data.error || "We could not process this URL.");
-      if (!Array.isArray(data.media) || data.media.length === 0) {
-        throw new Error("No downloadable media was found in this post.");
+      const media = Array.isArray(data.media) ? mediaForMode(data.media, mode) : [];
+      if (media.length === 0) {
+        throw new Error(`No downloadable ${mode === "all" ? "media" : activeMode.label.toLowerCase()} was found.`);
       }
 
-      setResult(data);
+      setResult({ ...data, media });
       setStatus("success");
       setMessage("Ready — choose a file.");
     } catch (error) {
@@ -132,26 +186,38 @@ export default function Home() {
         <div className="orb orb-two" />
         <div className="hero-copy">
           <div className="eyebrow">FREE • HIGH QUALITY • NO SIGN-UP</div>
-          <h1>Free Instagram<br /><em>Video Downloader</em></h1>
-          <p>Download Instagram Reels and post videos in the highest available quality. Paste a public Instagram link and save the video to your device for free.</p>
+          <div className="mode-tabs" role="tablist" aria-label="Download type">
+            {downloadModes.map((item) => (
+              <button key={item.id} type="button" role="tab" aria-selected={mode === item.id} className={mode === item.id ? "active" : ""} onClick={() => selectMode(item.id)}>
+                <span aria-hidden="true">{item.icon}</span>{item.label}
+              </button>
+            ))}
+          </div>
+          <h1>{activeMode.title.split(" ").slice(0, -1).join(" ")}<br /><em>{activeMode.title.split(" ").at(-1)}</em></h1>
+          <p>{activeMode.description}</p>
         </div>
 
         <form className="download-card" onSubmit={submit} noValidate>
-          <label htmlFor="instagram-url">Instagram URL</label>
+          <label htmlFor="instagram-url">{mode === "dp" || mode === "story" ? "Instagram profile or URL" : "Instagram URL"}</label>
           <div className="input-row">
-            <input
-              id="instagram-url"
-              type="url"
-              inputMode="url"
-              placeholder="https://www.instagram.com/reel/..."
-              value={url}
-              onChange={(event) => setUrl(event.target.value)}
-              aria-describedby="form-note form-status"
-              autoComplete="url"
-            />
+            <div className="url-field">
+              <input
+                id="instagram-url"
+                type="text"
+                inputMode="url"
+                placeholder={activeMode.placeholder}
+                value={url}
+                onChange={(event) => setUrl(event.target.value)}
+                aria-describedby="form-note form-status"
+                autoComplete="url"
+              />
+              <button className="paste-button" type="button" onClick={url ? () => setUrl("") : pasteFromClipboard}>
+                {url ? "Clear" : "Paste"}
+              </button>
+            </div>
             <button type="submit" disabled={status === "loading"}>
               <DownloadIcon />
-              {status === "loading" ? "Processing…" : "Download Video in High Quality"}
+              {status === "loading" ? "Processing…" : `Download ${mode === "all" ? "media" : activeMode.label}`}
             </button>
           </div>
           <p id="form-note" className="form-note">100% free. Public Instagram posts only. No account required.</p>
@@ -165,7 +231,7 @@ export default function Home() {
                 {result.media.map((item, index) => (
                   <a key={`${item.url}-${index}`} href={item.url} download={item.filename} target="_blank" rel="noreferrer">
                     <DownloadIcon />
-                    Download {item.type === "image" ? "image" : "video"} {item.quality && `• ${item.quality}`}
+                    Download {item.type === "image" ? "image" : item.type === "audio" ? "audio" : "video"} {item.quality && `• ${item.quality}`}
                   </a>
                 ))}
               </div>

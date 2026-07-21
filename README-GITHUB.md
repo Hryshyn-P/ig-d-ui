@@ -16,8 +16,10 @@ NEXT_PUBLIC_DOWNLOADER_API_URL=http://localhost:8787/api/download npm run dev
 Frontend отправляет `POST` на адрес из `NEXT_PUBLIC_DOWNLOADER_API_URL`:
 
 ```json
-{ "url": "https://www.instagram.com/reel/..." }
+{ "url": "https://www.instagram.com/reel/...", "mode": "reels" }
 ```
+
+`mode` обязателен и принимает `all`, `reels`, `video`, `photo`, `dp`, `story` или `audio`. Для `dp` и `story` поле `url` также может содержать Instagram username.
 
 Ожидаемый успешный ответ:
 
