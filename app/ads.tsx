@@ -12,6 +12,7 @@ const nativeScriptSrc = normalizeScriptUrl(
 const nativeContainerId = normalizeContainerId(
   process.env.NEXT_PUBLIC_ADSTERRA_NATIVE_CONTAINER_ID,
 );
+const adsenseClient = "ca-pub-4572528271560814";
 
 function normalizeScriptUrl(value: string | undefined) {
   const candidate = value?.trim();
@@ -40,6 +41,21 @@ export function SocialBarAd() {
       src={socialBarSrc}
       strategy="afterInteractive"
       data-cfasync="false"
+    />
+  );
+}
+
+export function GoogleAdsenseScript() {
+  const { preferences } = useConsent();
+  if (!preferences?.advertising) return null;
+
+  return (
+    <Script
+      id="google-adsense"
+      async
+      src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
+      crossOrigin="anonymous"
+      strategy="afterInteractive"
     />
   );
 }

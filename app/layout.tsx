@@ -7,7 +7,10 @@ export const metadata: Metadata = {
   title: "Free Instagram Video Downloader in High Quality — ReelSave",
   description:
     "Download videos from public Instagram Reels and posts for free in the highest available quality. No sign-up or app required.",
-  other: { "codex-preview": "development" },
+  other: {
+    "codex-preview": "development",
+    "google-adsense-account": "ca-pub-4572528271560814",
+  },
   icons: { icon: `${basePath}/favicon.svg`, shortcut: `${basePath}/favicon.svg` },
 };
 
