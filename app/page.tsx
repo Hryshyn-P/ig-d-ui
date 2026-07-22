@@ -203,6 +203,7 @@ export default function Home() {
   const [result, setResult] = useState<DownloadResult | null>(null);
   const [detectedKind, setDetectedKind] = useState<InstagramInputKind | null>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [downloadingIndex, setDownloadingIndex] = useState<number | null>(null);
   const [backendStatus, setBackendStatus] = useState<"checking" | "ready" | "unavailable">(
     HEALTH_URL ? "checking" : "unavailable",
   );
@@ -325,6 +326,36 @@ export default function Home() {
     }
   }
 
+  async function downloadMedia(item: MediaItem, index: number) {
+    if (downloadingIndex !== null) return;
+    setDownloadingIndex(index);
+    setStatus("loading");
+    setMessage("Preparing your download…");
+    try {
+      const response = await fetch(mediaDownloadUrl(item.url));
+      if (!response.ok) {
+        const data = await response.json().catch(() => null) as { error?: string; message?: string } | null;
+        throw new Error(data?.error || data?.message || `Download failed (${response.status}).`);
+      }
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = item.filename || `instagram-${item.type || "media"}-${index + 1}`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+      setStatus("success");
+      setMessage("Download ready.");
+    } catch (error) {
+      setStatus("error");
+      setMessage(error instanceof Error ? error.message : "Download failed. Please try again.");
+    } finally {
+      setDownloadingIndex(null);
+    }
+  }
+
   return (
     <ConsentProvider><main>
       <SocialBarAd />
@@ -418,13 +449,13 @@ export default function Home() {
                 <ol className={`download-list ${result.media.length > 1 ? "compact" : "single"}`}>
                   {result.media.map((item, index) => (
                     <li key={`${item.url}-${index}`}>
-                      <a href={mediaDownloadUrl(item.url)} download={item.filename}>
+                      <button type="button" disabled={downloadingIndex !== null} onClick={() => downloadMedia(item, index)}>
                         <span className="download-number">{index + 1}</span>
                         <DownloadIcon />
-                        Download {item.type === "image" ? "image" : item.type === "audio" ? "audio" : "video"}
+                        {downloadingIndex === index ? "Preparing" : `Download ${item.type === "image" ? "image" : item.type === "audio" ? "audio" : "video"}`}
                         {result.media.length > 1 && ` ${index + 1} of ${result.media.length}`}
                         {item.quality && ` • ${item.quality}`}
-                      </a>
+                      </button>
                     </li>
                   ))}
                 </ol>
