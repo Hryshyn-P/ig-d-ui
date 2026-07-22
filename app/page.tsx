@@ -132,15 +132,15 @@ function MediaPreview({ result }: { result: DownloadResult }) {
     <div className="preview-area">
       {activeItem?.type === "video" ? (
         <video
-          key={activeItem.url}
+          key={`${activeIndex}-${activeItem.url}`}
           className="media-preview"
           controls
           playsInline
           preload="metadata"
+          src={activeItem.url}
           poster={activeIndex === 0 ? result.thumbnail : undefined}
           aria-label={`Instagram video preview ${activeIndex + 1} of ${previewItems.length}`}
         >
-          <source src={activeItem.url} type="video/mp4" />
           Your browser does not support video preview.
         </video>
       ) : (
