@@ -398,7 +398,7 @@ export default function Home() {
               <MediaPreview result={result} />
               <div className="result-list">
                 <strong>{result.title || "Instagram media"}</strong>
-                <ol className="download-list">
+                <ol className={`download-list ${result.media.length > 1 ? "compact" : "single"}`}>
                   {result.media.map((item, index) => (
                     <li key={`${item.url}-${index}`}>
                       <a href={mediaDownloadUrl(item.url)} download={item.filename}>
