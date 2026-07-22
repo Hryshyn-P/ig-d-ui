@@ -8,6 +8,7 @@ import { ThemeToggle } from "./theme-toggle";
 type MediaItem = {
   url: string;
   type?: "video" | "image" | "audio";
+  thumbnail?: string;
   quality?: string;
   filename?: string;
 };
@@ -138,7 +139,7 @@ function MediaPreview({ result }: { result: DownloadResult }) {
           playsInline
           preload="metadata"
           src={activeItem.url}
-          poster={activeIndex === 0 ? result.thumbnail : undefined}
+          poster={activeItem.thumbnail ?? (activeIndex === 0 ? result.thumbnail : undefined)}
           aria-label={`Instagram video preview ${activeIndex + 1} of ${previewItems.length}`}
         >
           Your browser does not support video preview.
@@ -150,16 +151,24 @@ function MediaPreview({ result }: { result: DownloadResult }) {
       {previewItems.length > 1 && (
         <div className="preview-picker" aria-label="Choose media preview">
           <span>Preview {activeIndex + 1} of {previewItems.length}</span>
-          <div>
+          <div className="preview-thumbnails" role="tablist" aria-label="Carousel media">
             {previewItems.map((item, index) => (
               <button
                 key={item.url}
                 className={index === activeIndex ? "active" : ""}
                 type="button"
-                aria-label={`Show preview ${index + 1}`}
-                aria-pressed={index === activeIndex}
+                role="tab"
+                aria-label={`Show ${item.type === "video" ? "video" : "image"} ${index + 1} of ${previewItems.length}`}
+                aria-selected={index === activeIndex}
                 onClick={() => setActiveIndex(index)}
-              >{index + 1}</button>
+              >
+                {item.thumbnail || item.type === "image" ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={item.thumbnail ?? item.url} alt="" />
+                ) : <span className="preview-placeholder" aria-hidden="true">▶</span>}
+                <span className="preview-number">{index + 1}</span>
+                <span className="preview-type">{item.type === "video" ? "Video" : "Image"}</span>
+              </button>
             ))}
           </div>
         </div>
@@ -389,12 +398,19 @@ export default function Home() {
               <MediaPreview result={result} />
               <div className="result-list">
                 <strong>{result.title || "Instagram media"}</strong>
-                {result.media.map((item, index) => (
-                  <a key={`${item.url}-${index}`} href={mediaDownloadUrl(item.url)} download={item.filename}>
-                    <DownloadIcon />
-                    Download {item.type === "image" ? "image" : item.type === "audio" ? "audio" : "video"} {item.quality && `• ${item.quality}`}
-                  </a>
-                ))}
+                <ol className="download-list">
+                  {result.media.map((item, index) => (
+                    <li key={`${item.url}-${index}`}>
+                      <a href={mediaDownloadUrl(item.url)} download={item.filename}>
+                        <span className="download-number">{index + 1}</span>
+                        <DownloadIcon />
+                        Download {item.type === "image" ? "image" : item.type === "audio" ? "audio" : "video"}
+                        {result.media.length > 1 && ` ${index + 1} of ${result.media.length}`}
+                        {item.quality && ` • ${item.quality}`}
+                      </a>
+                    </li>
+                  ))}
+                </ol>
               </div>
             </div>
           )}
