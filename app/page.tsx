@@ -118,34 +118,54 @@ function DownloadIcon() {
 
 function MediaPreview({ result }: { result: DownloadResult }) {
   const audio = result.media.find((item) => item.type === "audio");
-  const video = result.media.find((item) => item.type !== "image");
+  const previewItems = result.media.filter((item) => item.type !== "audio");
+  const [activeIndex, setActiveIndex] = useState(0);
+  const activeItem = previewItems[activeIndex];
 
   if (audio) {
     return <audio className="audio-preview" controls preload="metadata" src={audio.url}>Your browser does not support audio preview.</audio>;
   }
 
-  if (video) {
-    return (
-      <video
-        className="media-preview"
-        controls
-        playsInline
-        preload="metadata"
-        poster={result.thumbnail}
-        aria-label="Instagram video preview"
-      >
-        <source src={video.url} />
-        Your browser does not support video preview.
-      </video>
-    );
-  }
+  if (!activeItem && !result.thumbnail) return null;
 
-  if (result.thumbnail) {
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img className="media-preview" src={result.thumbnail} alt="Instagram post preview" />;
-  }
-
-  return null;
+  return (
+    <div className="preview-area">
+      {activeItem?.type === "video" ? (
+        <video
+          key={activeItem.url}
+          className="media-preview"
+          controls
+          playsInline
+          preload="metadata"
+          poster={activeIndex === 0 ? result.thumbnail : undefined}
+          aria-label={`Instagram video preview ${activeIndex + 1} of ${previewItems.length}`}
+        >
+          <source src={activeItem.url} type="video/mp4" />
+          Your browser does not support video preview.
+        </video>
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img className="media-preview" src={activeItem?.url ?? result.thumbnail} alt={`Instagram image preview ${activeIndex + 1} of ${previewItems.length || 1}`} />
+      )}
+      {previewItems.length > 1 && (
+        <div className="preview-picker" aria-label="Choose media preview">
+          <span>Preview {activeIndex + 1} of {previewItems.length}</span>
+          <div>
+            {previewItems.map((item, index) => (
+              <button
+                key={item.url}
+                className={index === activeIndex ? "active" : ""}
+                type="button"
+                aria-label={`Show preview ${index + 1}`}
+                aria-pressed={index === activeIndex}
+                onClick={() => setActiveIndex(index)}
+              >{index + 1}</button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function Home() {

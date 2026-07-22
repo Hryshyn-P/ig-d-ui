@@ -87,6 +87,11 @@ h1 em { color: transparent; background: linear-gradient(90deg, #fff 5%, var(--gr
 .status.loading, .status.success { color: var(--green); border-color: rgba(156,255,87,.22); background: rgba(156,255,87,.06); }
 .results { display: grid; gap: 16px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
 .media-preview { display: block; width: 100%; max-height: 420px; aspect-ratio: 16 / 9; border: 1px solid var(--line); border-radius: 12px; background: #020302; object-fit: contain; }
+.preview-area { display: grid; gap: 10px; }
+.preview-picker { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 12px; }
+.preview-picker > div { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.preview-picker button { width: 30px; height: 30px; padding: 0; color: var(--muted); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; background: var(--surface-2); font-size: 12px; font-weight: 800; }
+.preview-picker button.active { color: #071003; border-color: var(--green); background: var(--green); }
 .audio-preview { width: 100%; }
 .result-list { flex: 1; display: flex; flex-direction: column; gap: 9px; }
 .result-list > a { width: fit-content; padding: 9px 13px; display: flex; align-items: center; gap: 7px; color: #071003; border-radius: 8px; background: var(--green); font-size: 13px; font-weight: 800; }
