@@ -87,6 +87,14 @@ h1 em { color: transparent; background: linear-gradient(90deg, #fff 5%, var(--gr
 .status.loading, .status.success { color: var(--green); border-color: rgba(156,255,87,.22); background: rgba(156,255,87,.06); }
 .results { display: grid; gap: 16px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
 .media-preview { display: block; width: 100%; max-height: 420px; aspect-ratio: 16 / 9; border: 1px solid var(--line); border-radius: 12px; background: #020302; object-fit: contain; }
+.preview-frame { position: relative; overflow: hidden; }
+.preview-frame video, .preview-poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.preview-frame video { z-index: 2; background: transparent; }
+.preview-poster { z-index: 1; }
+.preview-unavailable { position: absolute; inset: 0; z-index: 3; display: grid; place-content: center; justify-items: center; gap: 9px; color: #fff; background: rgba(0,0,0,.18); text-shadow: 0 2px 8px rgba(0,0,0,.85); pointer-events: none; }
+.preview-unavailable span { position: relative; width: 66px; height: 48px; display: grid; place-items: center; padding-left: 4px; font-size: 29px; opacity: .86; }
+.preview-unavailable span::after { content: ""; position: absolute; width: 72px; height: 4px; border-radius: 999px; background: currentColor; transform: rotate(34deg); box-shadow: 0 1px 5px rgba(0,0,0,.65); }
+.preview-unavailable small { padding: 5px 9px; border-radius: 7px; background: rgba(0,0,0,.68); font-size: 12px; font-weight: 750; }
 .preview-area { display: grid; gap: 10px; }
 .preview-picker { display: grid; gap: 8px; color: var(--muted); font-size: 12px; }
 .preview-thumbnails { display: flex; gap: 8px; padding-bottom: 4px; overflow-x: auto; scroll-snap-type: x proximity; }

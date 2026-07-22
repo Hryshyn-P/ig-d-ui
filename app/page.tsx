@@ -121,7 +121,10 @@ function MediaPreview({ result }: { result: DownloadResult }) {
   const audio = result.media.find((item) => item.type === "audio");
   const previewItems = result.media.filter((item) => item.type !== "audio");
   const [activeIndex, setActiveIndex] = useState(0);
+  const [failedVideoUrl, setFailedVideoUrl] = useState<string | null>(null);
   const activeItem = previewItems[activeIndex];
+  const activePoster = activeItem?.thumbnail ?? (activeIndex === 0 ? result.thumbnail : undefined);
+  const videoFailed = activeItem?.type === "video" && failedVideoUrl === activeItem.url;
 
   if (audio) {
     return <audio className="audio-preview" controls preload="metadata" src={audio.url}>Your browser does not support audio preview.</audio>;
@@ -132,18 +135,32 @@ function MediaPreview({ result }: { result: DownloadResult }) {
   return (
     <div className="preview-area">
       {activeItem?.type === "video" ? (
-        <video
-          key={`${activeIndex}-${activeItem.url}`}
-          className="media-preview"
-          controls
-          playsInline
-          preload="metadata"
-          src={activeItem.url}
-          poster={activeItem.thumbnail ?? (activeIndex === 0 ? result.thumbnail : undefined)}
-          aria-label={`Instagram video preview ${activeIndex + 1} of ${previewItems.length}`}
-        >
-          Your browser does not support video preview.
-        </video>
+        <div className={`media-preview preview-frame${videoFailed ? " failed" : ""}`}>
+          {activePoster && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className="preview-poster" src={activePoster} alt="" />
+          )}
+          {!videoFailed && (
+            <video
+              key={`${activeIndex}-${activeItem.url}`}
+              controls
+              playsInline
+              preload="metadata"
+              src={activeItem.url}
+              poster={activePoster}
+              aria-label={`Instagram video preview ${activeIndex + 1} of ${previewItems.length}`}
+              onError={() => setFailedVideoUrl(activeItem.url)}
+            >
+              Your browser does not support video preview.
+            </video>
+          )}
+          {videoFailed && (
+            <div className="preview-unavailable" role="status">
+              <span aria-hidden="true">▶</span>
+              <small>Preview unavailable</small>
+            </div>
+          )}
+        </div>
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
         <img className="media-preview" src={activeItem?.url ?? result.thumbnail} alt={`Instagram image preview ${activeIndex + 1} of ${previewItems.length || 1}`} />
