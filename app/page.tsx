@@ -156,7 +156,7 @@ function MediaPreview({ result }: { result: DownloadResult }) {
           )}
           {videoFailed && (
             <div className="preview-unavailable" role="status">
-              <span aria-hidden="true">▶</span>
+              <span aria-hidden="true" />
               <small>Preview unavailable</small>
             </div>
           )}
